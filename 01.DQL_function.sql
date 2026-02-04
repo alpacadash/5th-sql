@@ -9,11 +9,17 @@ SELECT -1, ABS(-1);
 SELECT ROUND(12.345);
 
 -- 3. 지정한 자리수 이하 버리는 함수 : trunc()
-
+SELECT TRUNCATE(12.345, -1);
 -- 4. 나누고 난 나머지 값 연산 함수 : mod()
 -- 모듈러스 연산자, % 표기로 연산
+SELECT 10 % 3, MOD(10, 3);
 
 -- 5. ? emp table에서 사번이 홀수인 사원의 이름, 사번 검색 
+SELECT ename, empno
+FROM emp
+WHERE MOD(empno, 2) != 0;
+
+
 
 -- 6. 제곱수 구하는 함수 : power()
 
