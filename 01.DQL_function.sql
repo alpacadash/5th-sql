@@ -6,10 +6,11 @@
 SELECT -1, ABS(-1);
 
 -- 2. 반올림 구하는 함수 : round(데이터 [, 반올림자릿수]) //반올림자릿수가 -1면 1의 자리 숫자에서 반올림
-SELECT ROUND(12.345);
+SELECT ROUND(12.345), ROUND(12.345, -1);
 
--- 3. 지정한 자리수 이하 버리는 함수 : trunc()
+-- 3. 지정한 자리수 이하 버리는 함수 : truncate()
 SELECT TRUNCATE(12.345, -1);
+
 -- 4. 나누고 난 나머지 값 연산 함수 : mod()
 -- 모듈러스 연산자, % 표기로 연산
 SELECT 10 % 3, MOD(10, 3);
@@ -19,52 +20,110 @@ SELECT ename, empno
 FROM emp
 WHERE MOD(empno, 2) != 0;
 
-
-
 -- 6. 제곱수 구하는 함수 : power()
+SELECT POWER(4, 3);
 
 -- *** [문자함수] ***
 -- 1. 문자열 길이 체크함수 : length() / char_length()
--- mysql 기본 영어 1byte, 한글은 2byte(euckr)
+-- mysql 기본 영어 1byte, 한글은 3byte(euckr)
+SELECT LENGTH('ABC'), LENGTH('가나다');
+SELECT CHAR_LENGTH('ABC'), CHAR_LENGTH('가나다');
 
 -- 2. byte 수 체크 함수 : length()
 
--- 3. 문자열 일부 추출 함수 : substr()
+-- 3. 문자열 일부 추출 함수 : substr(), substring()
 -- 서브스트링 : 하나의 문자열에서 일부 언어 발췌하는 로직의 표현
 -- substr(데이터, 시작위치, 추출할 개수)
+SELECT SUBSTRING('ABCED', 2, 3);
 
 -- 4. ? 년도 구분없이 2월에 입사한 사원이름, 입사일 검색
+-- 1980-12-17 00:00:00
+SELECT ename, hiredate
+FROM emp
+WHERE SUBSTRING(hiredate, 6, 2) = '02';
 
 -- 5. 문자열 앞뒤의 잉여 여백 제거 함수 : trim()
+SELECT CHAR_LENGTH(TRIM('MYSQL '));
+SELECT CHAR_LENGTH(RTRIM('MYSQL '));
+SELECT CHAR_LENGTH(LTRIM(' MYSQL'));
 
 -- *** [날짜 함수] ***
 -- 1. ?어제, 오늘, 내일 날짜 검색 
+SELECT NOW();
+SELECT CURRENT_TIMESTAMP();
+-- 쿼리 시작 시각 : 로그, created_at, updated_at
+SELECT NOW(), SLEEP(2), NOW();
+
+SELECT SYSDATE();
+-- 함수 실행 시각 : 현재 서버 상태 체크
+SELECT SYSDATE(), SLEEP(2), SYSDATE();
 
 -- 뒷부분에서 진행하기
 -- 2.?emp table에서 근무일수 계산하기, 사번과 근무일수(반올림) 검색
 
--- 3. 특정 개월수 더하는 함수 : date_add(), adddate()
+-- 3. 특정 개월수 더하는 함수 : date_add(), date_sub()
 -- 6개월 이후 검색 
+-- YEAR, MONTH, DAY, HOUR, MINUTES, SECONDS
+SELECT NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH);
 
 -- 4. ? 입사일 이후 3개월 지난 일수 검색
+SELECT ename, hiredate, DATE_ADD(hiredate, INTERVAL 3 MONTH)
+FROM emp;
 
--- 5. 두 날짜 사이의 개월수 검색 : datediff(day1, day2)
+-- 5. 두 날짜 사이의 개월수 검색 : datediff(day1, day2), timediff(time1, time2), timestampdiff(unit, datetime1, datetime2)
 -- 오늘을 기준으로 2016-09-19
 -- 결과 앞 기준 - 뒷 기준 날짜 
+SELECT DATEDIFF('2016-09-19', CURDATE());
+SELECT TIMEDIFF('12:00:00', '08:30:00');
+SELECT TIMESTAMPDIFF(MONTH, NOW(), hiredate)
+FROM emp;
 
 -- ? emp table에서 근무일수 계산하기, 사번과 근무일수(반올림) 검색
+SELECT DATEDIFF(CURDATE(), hiredate)
+FROM emp;
 
 -- 6. 주어진 날짜를 기준으로 해당 달의 가장 마지막 날짜 : last_day()
+SELECT LAST_DAY('2016-09-19');
+
+-- Date vs Datetime
+-- Date : '2026-02-04' -> '2026-02-04 00:00:00'
+-- Datetime : '2026-02-04 시:분:초'
+
+-- DATEDIFF : 시간 버리고 날짜만 비교
+SELECT
+	DATEDIFF('2026-02-05 00:00:00', '2026-02-04 23:59:59'),
+    DATEDIFF('2026-02-05 15:00:00', '2026-02-04 13:00:01');
+
+-- TIMESTAMPDIFF
+SELECT
+	TIMESTAMPDIFF(DAY, '2026-02-05 00:00:00', 
+						'2026-02-04 23:59:59');
+
+-- WHERE hiredate >= CURDATE();
+-- 어제 23:59 입사, 오늘 23:59 입사, 오늘 00:01 입사 
+
+-- WHERE hiredate = '2026-02-04' (x)
+-- WHERE hiredate >= '2026-02-04' AND hiredate < '2026-02-05'
 
 -- *** [형변환 함수] ***
--- 사용 빈도가 높음
--- [1] date_format : 날짜 -> 문자, 숫자 -> 문자
--- [2] str_to_date : 날짜로 변경 시키는 함수
--- [3] cast : 문자열을 숫자로 변환
-	
--- [1] date_format()
--- 1. 오늘 날짜를 'yyyy-mm-dd' 변환 : 
+SELECT '123' + 1;
+SELECT 'abc' + 1;
+SELECT 'abc123' + 1;
+SELECT '123abc' + 1;
 
+-- 사용 빈도가 높음
+-- [1] date_format : 날짜 -> 문자
+-- [2] str_to_date : 날짜로 변경 시키는 함수
+-- [3] cast : 변환
+	
+-- [1] date_format(date, format)
+-- 1. 오늘 날짜를 'yyyy-mm-dd' 변환 
+SELECT DATE_FORMAT(NOW(), '%Y/%m/%d');
+
+-- [2] str_to_date(str, format)
+SELECT STR_TO_DATE('20261123', '%Y%m%d');
+
+-- %Y/%m/%d
 /*
 %Y	년도 - Year(4자리 표기)
 %y	년도 (뒤에 2자리 표기)
@@ -79,7 +138,18 @@ WHERE MOD(empno, 2) != 0;
 
 -- 3. 숫자를 문자형으로 변환 : cast, convert
 -- cast(값 as 데이터형식[길이])
+-- 문자 -> 숫자
+SELECT CAST('123' AS UNSIGNED);
+SELECT CAST('123.456' AS DECIMAL(10, 2));
+
+-- 문자 -> 날짜
+SELECT CAST('20260204' AS DATETIME);
+
+-- 날짜 -> 문자
+SELECT CAST(NOW() AS CHAR);
+
 -- convert(변환하고싶은 데이터, 데이터형식[(길이)])​
+
 /* 
 BINARY 		-- 이진 데이터 
 CHAR 		-- 문자열 타입 

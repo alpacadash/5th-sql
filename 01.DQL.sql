@@ -297,7 +297,7 @@ ORDER BY (comm IS NULL) ASC, comm ASC;
 
 SELECT ename, comm
 FROM emp
-ORDER BY IFNULL(comm, 99999999999) ASC;
+ORDER BY IFNULL(comm, 9999999999) ASC;
 
 SELECT ename, sal, deptno
 FROM emp
