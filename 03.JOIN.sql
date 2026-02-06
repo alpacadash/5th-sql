@@ -359,7 +359,20 @@ FROM emp;
 
 -- 특정 사원(예: SCOTT)보다 급여를 많이 받는 사원의 이름과 부서명 조회
 -- 'SCOTT'보다 많은 급여를 받는 사원의 이름, 급여, 부서명을 조회
+SELECT e.ename, e.sal, d.dname
+FROM emp e
+INNER JOIN dept d ON e.deptno = d.deptno
+INNER JOIN emp target ON target.ename = 'SCOTT'
+WHERE e.sal > target.sal;
 
 -- 사원이 한 명도 없는 부서 조회 (LEFT JOIN)
-
+SELECT d.deptno, d.dname, d.loc
+FROM dept d
+LEFT JOIN emp e ON d.deptno = e.deptno
+WHERE e.empno IS NULL;
 -- 급여 등급(SALGRADE)이 매칭되지 않는 사원 조회(LEFT JOIN)
+SELECT e.ename, e.sal, s.grade
+FROM emp e
+LEFT JOIN salgrade s ON e.sal BETWEEN s.losal AND s.hisal
+WHERE s.grade IS NULL;
+
